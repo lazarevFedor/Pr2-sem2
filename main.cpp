@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <ctime>
 #include <chrono>
+#undef max
 using namespace std;
 using namespace chrono;
 
@@ -267,46 +268,47 @@ void randArray(int &sizeArr, int* &arr){
 }
 
 
-int* fillArray(int &sizeArr){
-    int* arr = new int[sizeArr];
-    sizeArr = 0;
-    int num;
-    while (std::cin >> num) {
-        *(arr + sizeArr) = num;
-        sizeArr++;
-        int* newArr = new int[sizeArr];
-        for (int i = 0; i < sizeArr; i++) {
-            newArr[i] = arr[i];
-        }
-        delete[] arr;
-        arr = newArr;
-    }
-    return arr;
-}
+
 
 
 void printArray(int &sizeArr, int* &arr){
     for (int i = 0; i < sizeArr; i++){
-        cout << *(arr + i) << " ";
+        cout << arr[i] << " ";
     }
     cout << "\n";
 }
 
 
-void addToArray(int &sizeArr, int* &arr, int& id, int& number){
+void addToArray(int &sizeArr, int* &arr, int &id, int& number){
     sizeArr++;
     int  *rez = new int[sizeArr];
     for (int i = 0; i < id; i++) {
-        *(rez + i) = *(arr + i);
+        rez[i] = arr[i];
     }
-    *(rez + id) = number;
-    if (id != sizeArr){
-        for (int i = id+1; i < sizeArr; i++) {
-            *(rez + i) = *(arr + i-1);
-        }
+    rez[id] = number;
+    for (int i = id; i < sizeArr - 1; i++) {
+        rez[i+1] = arr[i];
     }
     delete[] arr;
     arr = rez;
+}
+
+
+void fillArray(int &sizeArr, int* &arr, int &number){
+    while (true){
+        cin >> number;
+        int  *rez = new int[sizeArr+1];
+        for (int i = 0; i < sizeArr; i++) {
+            rez[i] = arr[i];
+        }
+        rez[sizeArr] = number;
+        sizeArr++;
+        delete[] arr;
+        arr = rez;
+        if (cin.peek() == '\n') {
+            break;
+        }
+    }
 }
 
 
@@ -482,13 +484,15 @@ int main() {
                     cin >> sizeArr;
                     start = steady_clock::now();
                     randArray(sizeArr, arr);
+                    printArray(sizeArr, arr);
                     end = steady_clock::now();
                     result = duration_cast<nanoseconds>(end - start);
                     cout << "\nВремя создания: " << result.count() << "\n";
                 }
                 else if (choise == 2){
                     start = steady_clock::now();
-                    arr = fillArray(sizeArr);
+                    fillArray(sizeArr, arr, number);
+                    printArray(sizeArr, arr);
                     end = steady_clock::now();
                     result = duration_cast<nanoseconds>(end - start);
                     cout << "\nВремя создания: " << result.count() << "\n";
