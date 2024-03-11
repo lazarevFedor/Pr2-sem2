@@ -2,6 +2,8 @@
 #include <Windows.h>
 #include <ctime>
 #include <chrono>
+#include <limits>
+#undef max
 using namespace std;
 using namespace chrono;
 
@@ -9,8 +11,8 @@ using namespace chrono;
 struct Node {
     int data;
     Node* prev, *next;
-    Node(int input_data) {
-        data = input_data;
+    Node(int inputData) {
+        data = inputData;
         prev = nullptr;
         next = nullptr;
     }
@@ -19,7 +21,7 @@ struct Node {
 struct LinkedList{
     Node* head, * tail;
 
-    void LinkedList_create() {
+    void LinkedListCreate() {
         head = tail = nullptr;
     }
 
@@ -100,7 +102,7 @@ struct LinkedList{
     void eraseByIndex(int index){
         Node* ptr = getAt(index);
         if (ptr == nullptr){
-            cout << "\nНет элемента для удаления\n";
+            cout << "\nНет элемента для удаления!";
             return; //нет такого элемента для удаления
         }
         if (ptr->prev == nullptr){ //если удаляемый элемент первый
@@ -124,7 +126,7 @@ struct LinkedList{
             ptr = ptr->next;
         }
         if (ptr == nullptr){
-            cout << "\nНет элемента для удаления!\n";
+            cout << "\nНет элемента для удаления!";
             return; //нет такого элемента для удаления
         }
         if (ptr->prev == nullptr){ //если удаляемый элемент первый
@@ -203,7 +205,8 @@ void editMenu(){
          "3) Удалить элемент по значению\n" <<
          "4) Обмен элементов\n" <<
          "5) Получить элемент по индексу\n" <<
-         "6) Получить элемент по значению\n-->> ";
+         "6) Получить элемент по значению\n" <<
+         "7) Сортировка\n-->> ";
 }
 
 
@@ -211,8 +214,16 @@ int randint(){
     return rand() % 100;
 }
 
+
+void clearStream() {
+    cin.clear();
+    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    cin.sync();
+}
+
 //Функции list
 void printList(LinkedList &list){
+    cout << "\nСписок: ";
     for (Node *ptr = list.head; ptr != nullptr; ptr = ptr->next)
         cout << ptr->data << " ";
     cout << "\n";
@@ -223,6 +234,7 @@ void randList(LinkedList &list){
     int lenght = 0;
     cout << "Введите количество элементов -->> ";
     cin >> lenght;
+    clearStream();
     for (int i = 0; i < lenght; i++){
         list.pushBack(randint());
     }
@@ -237,6 +249,7 @@ void fillList(LinkedList &list){
             break;
         }
     }
+    clearStream();
 }
 
 
@@ -256,6 +269,36 @@ int findInList(LinkedList &list, int number){
     return -1;
 }
 
+
+void shakerList(LinkedList &list, int countInList){
+    bool swapped = true;
+    int start = 0;
+    int end = countInList - 1;
+    while (swapped) {
+        swapped = false;
+        // Проход слева направо
+        for (int i = start; i < end; ++i) {
+            if (list.getAt(i)->data > list.getAt(i+1)->data){
+                list.swapElements(i, i+1);
+                swapped = true;
+            }
+        }
+        if (!swapped) {
+            break;
+        }
+        swapped = false;
+        --end;
+        // Проход справа налево
+        for (int i = end - 1; i >= start; --i) {
+            if (list.getAt(i)->data > list.getAt(i+1)->data) {
+                list.swapElements(i, i+1);
+                swapped = true;
+            }
+        }
+        ++start;
+    }
+}
+
 //Функции динамического массива
 void randArray(int &sizeArr, int* &arr){
     int  *rez = new int[sizeArr];
@@ -267,76 +310,82 @@ void randArray(int &sizeArr, int* &arr){
 }
 
 
-int* fillArray(int &sizeArr){
-    int* arr = new int[sizeArr];
-    sizeArr = 0;
-    int num;
-    while (std::cin >> num) {
-        *(arr + sizeArr) = num;
-        sizeArr++;
-        int* newArr = new int[sizeArr];
-        for (int i = 0; i < sizeArr; i++) {
-            newArr[i] = arr[i];
-        }
-        delete[] arr;
-        arr = newArr;
-    }
-    return arr;
-}
-
-
 void printArray(int &sizeArr, int* &arr){
+    cout << "\nМассив: ";
     for (int i = 0; i < sizeArr; i++){
-        cout << *(arr + i) << " ";
+        cout << arr[i] << " ";
     }
     cout << "\n";
 }
 
 
-void addToArray(int &sizeArr, int* &arr, int& id, int& number){
-    sizeArr++;
-    int  *rez = new int[sizeArr];
+void addToArray(int &sizeArr, int* &arr, int &id, int& number){
+    if (id < 0 || id > sizeArr) return;
+    int  *rez = new int[sizeArr+1];
     for (int i = 0; i < id; i++) {
-        *(rez + i) = *(arr + i);
+        rez[i] = arr[i];
     }
-    *(rez + id) = number;
-    if (id != sizeArr){
-        for (int i = id+1; i < sizeArr; i++) {
-            *(rez + i) = *(arr + i-1);
-        }
+    rez[id] = number;
+    for (int i = id; i < sizeArr; i++) {
+        rez[i+1] = arr[i];
     }
+    sizeArr++;
     delete[] arr;
     arr = rez;
 }
 
 
+void fillArray(int &sizeArr, int* &arr, int &number){
+    while (cin >> number){
+        int  *rez = new int[sizeArr+1];
+        for (int i = 0; i < sizeArr; i++) {
+            rez[i] = arr[i];
+        }
+        rez[sizeArr] = number;
+        sizeArr++;
+        delete[] arr;
+        arr = rez;
+        if (cin.peek() == '\n') {
+            break;
+        }
+    }
+    clearStream();
+}
+
+
 void deleteByIndex(int &sizeArr, int* &arr, int& id){
-    sizeArr--;
-    int  *rez = new int[sizeArr];
+    int  *rez = new int[sizeArr-1];
     int j = 0;
-    for (int i = 0; i < sizeArr+1; i++) {
+    for (int i = 0; i < sizeArr; i++) {
         if (i != id) {
             *(rez + j) = *(arr + i);
             j++;
         }
     }
-    delete[] arr;
-    arr = rez;
+    if (j < sizeArr){
+        sizeArr--;
+        delete[] arr;
+        arr = rez;
+    }
+    else cout << "Нет элемента для удаления!\n";
 }
 
 
 void deleteByValue(int &sizeArr, int* &arr, int& number){
-    sizeArr--;
-    int  *rez = new int[sizeArr];
+    int  *rez = new int[sizeArr-1];
     int j = 0;
-    for (int i = 0; i < sizeArr+1; i++) {
+    for (int i = 0; i < sizeArr; i++) {
         if (*(arr + i) != number) {
             *(rez + j) = *(arr + i);
             j++;
         }
     }
-    delete[] arr;
-    arr = rez;
+    if (j < sizeArr){
+        sizeArr--;
+        delete[] arr;
+        arr = rez;
+    }
+    else cout << "Нет элемента для удаления!";
 }
 
 
@@ -357,6 +406,44 @@ void getByValue(int &sizeArr, int* &arr,int &number){
     cout << "\nЗначение не найдено!\n";
 }
 
+
+void clearArray(int &sizeArr, int* &arr){
+    sizeArr = 0;
+    int  *rez = new int[0];
+    delete[] arr;
+    arr = rez;
+}
+
+
+void shakerArray(int* &arr, int &sizeArr) {
+    bool swapped = true;
+    int start = 0;
+    int end = sizeArr - 1;
+    while (swapped) {
+        swapped = false;
+        // Проход слева направо
+        for (int i = start; i < end; ++i) {
+            if (arr[i] > arr[i + 1]){
+                swap(arr[i], arr[i + 1]);
+                swapped = true;
+            }
+        }
+        if (!swapped) {
+            break;
+        }
+        swapped = false;
+        --end;
+        // Проход справа налево
+        for (int i = end - 1; i >= start; --i) {
+            if (arr[i] > arr[i + 1]) {
+                swap(arr[i], arr[i + 1]);
+                swapped = true;
+            }
+        }
+        ++start;
+    }
+}
+
 //.........................................................
 int main() {
     SetConsoleOutputCP(CP_UTF8);
@@ -367,7 +454,8 @@ int main() {
     int choise, sizeArr = 0, id, number;
     int* arr = new int [sizeArr];
     LinkedList list;
-    list.LinkedList_create();
+    list.LinkedListCreate();
+    int countInList;
     while(true){
         menu();
         cin >> choise;
@@ -375,7 +463,7 @@ int main() {
             case 1:
                 system("cls");
                 cout << "1) Зарандомить\n" <<
-                "2) Ввести ручками\n-->> ";
+                     "2) Ввести ручками\n-->> ";
                 cin >> choise;
                 if (choise == 1){
                     clearList(list);
@@ -384,15 +472,16 @@ int main() {
                     end = steady_clock::now();
                     result = duration_cast<nanoseconds>(end - start);
                     printList(list);
-                    cout << "\nВремя создания: " << result.count() << "\n";
+                    cout << "Время создания: " << result.count() << "\n";
                 }
                 else if (choise == 2){
                     clearList(list);
+                    cout << "Список: ";
                     start = steady_clock::now();
                     fillList(list);
                     end = steady_clock::now();
                     result = duration_cast<nanoseconds>(end - start);
-                    cout << "\nВремя создания: " << result.count() << "\n";
+                    cout << "Время создания: " << result.count() << "\n\n";
                 }
                 break;
             case 2:
@@ -410,7 +499,7 @@ int main() {
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
                         printList(list);
-                        cout << "\nВремя вставки: " << result.count() << "\n";
+                        cout << "Время вставки: " << result.count() << "\n\n";
                         break;
                     case 2:
                         cout << "Индекс: ";
@@ -420,7 +509,7 @@ int main() {
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
                         printList(list);
-                        cout << "\nВремя удаления: " << result.count() << "\n";
+                        cout << "Время удаления: " << result.count() << "\n\n";
                         break;
                     case 3:
                         cout << "Значение: ";
@@ -430,7 +519,7 @@ int main() {
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
                         printList(list);
-                        cout << "\nВремя удаления: " << result.count() << "\n";
+                        cout << "Время удаления: " << result.count() << "\n\n";
                         break;
                     case 4:
                         cout << "Индекс1: ";
@@ -448,7 +537,7 @@ int main() {
                         cout << "Значение: " << pointer->data << "\n";
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
-                        cout << "Время получения: " << result.count() << "\n";
+                        cout << "Время получения: " << result.count() << "\n\n";
                         break;
                     case 6:
                         cout << "Значение: ";
@@ -456,17 +545,21 @@ int main() {
                         start = steady_clock::now();
                         id = findInList(list, number);
                         if (id == -1){
-                            cout << "\nНеправильно введено значение!\n";
+                            cout << "Неправильно введено значение!\n\n";
                         }
                         else{
                             cout << "Индекс: " << id << "\n";
                         }
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
-                        cout << "Время получения: " << result.count() << "\n";
+                        cout << "Время получения: " << result.count() << "\n\n";
+                        break;
+                    case 7:
+                        shakerList(list, countInList);
+                        printList(list);
                         break;
                     default:
-                        cout << "Неправильно введен номер!!!\n";
+                        cout << "Неправильно введен номер!!!\n\n";
                         break;
                 }
                 break;
@@ -474,24 +567,29 @@ int main() {
                 printList(list);
                 break;
             case 4:
+                clearArray(sizeArr, arr);
                 cout << "1) Зарандомить\n" <<
                      "2) Ввести ручками\n-->> ";
                 cin >> choise;
                 if (choise == 1){
                     cout << "Введите размер массива\n-->> ";
                     cin >> sizeArr;
+                    clearStream();
                     start = steady_clock::now();
                     randArray(sizeArr, arr);
+                    printArray(sizeArr, arr);
                     end = steady_clock::now();
                     result = duration_cast<nanoseconds>(end - start);
-                    cout << "\nВремя создания: " << result.count() << "\n";
+                    cout << "Время создания: " << result.count() << "\n\n";
                 }
                 else if (choise == 2){
+                    cout << "Массив: ";
                     start = steady_clock::now();
-                    arr = fillArray(sizeArr);
+                    fillArray(sizeArr, arr, number);
+                    printArray(sizeArr, arr);
                     end = steady_clock::now();
                     result = duration_cast<nanoseconds>(end - start);
-                    cout << "\nВремя создания: " << result.count() << "\n";
+                    cout << "Время создания: " << result.count() << "\n\n";
                 }
                 break;
             case 5:
@@ -508,7 +606,7 @@ int main() {
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
                         printArray(sizeArr, arr);
-                        cout << "\nВремя вставки: " << result.count() << "\n";
+                        cout << "\nВремя вставки: " << result.count() << "\n\n";
                         break;
                     case 2:
                         cout << "Индекс: ";
@@ -518,9 +616,13 @@ int main() {
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
                         printArray(sizeArr, arr);
-                        cout << "\nВремя удаления: " << result.count() << "\n";
+                        cout << "\nВремя удаления: " << result.count() << "\n\n";
                         break;
                     case 3:
+                        if (sizeArr == 0){
+                            cout << "Массив пустой!\n";
+                            break;
+                        }
                         cout << "Значение: ";
                         cin >> number;
                         start = steady_clock::now();
@@ -528,7 +630,7 @@ int main() {
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
                         printArray(sizeArr, arr);
-                        cout << "\nВремя удаления: " << result.count() << "\n";
+                        cout << "\nВремя удаления: " << result.count() << "\n\n";
                         break;
                     case 4:
                         cout << "Индекс1: ";
@@ -541,14 +643,14 @@ int main() {
                         cout << "Индекс: ";
                         cin >> id;
                         if (id < 0 || id >= sizeArr){
-                            cout << "\nНеправильно введён индекс!\n";
+                            cout << "\nНеправильно введён индекс!\n\n";
                         }
                         else{
                             start = steady_clock::now();
                             cout << "Значение: " << *(arr + id) << "\n";
                             end = steady_clock::now();
                             result = duration_cast<nanoseconds>(end - start);
-                            cout << "Время получения: " << result.count() << "\n";
+                            cout << "Время получения: " << result.count() << "\n\n";
                         }
                         break;
                     case 6:
@@ -558,10 +660,14 @@ int main() {
                         getByValue(sizeArr, arr, number);
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
-                        cout << "Время получения: " << result.count() << "\n";
+                        cout << "Время получения: " << result.count() << "\n\n";
+                        break;
+                    case 7:
+                        shakerArray(arr, sizeArr);
+                        printArray(sizeArr, arr);
                         break;
                     default:
-                        cout << "Неправильно введён номер!!!\n";
+                        cout << "Неправильно введён номер!\n\n";
                         break;
                 }
                 break;
@@ -574,11 +680,11 @@ int main() {
             case 8:
                 clearList(list);
                 delete [] arr;
+                arr = nullptr;
                 exit(0);
             default:
-                cout << "\nНеправильно ввёден номер!!!\n";
+                cout << "\nНеправильно ввёден номер!\n\n";
                 break;
         }
     }
 }
-
