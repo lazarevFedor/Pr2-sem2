@@ -270,7 +270,16 @@ int findInList(LinkedList &list, int number){
 }
 
 
-void shakerList(LinkedList &list, int countInList){
+int elementsInList(LinkedList &list){
+    int num = 0;
+    for (Node *ptr = list.head; ptr != nullptr; ptr = ptr->next){
+        num++;
+    }
+    return num;
+}
+
+
+void shakerList(LinkedList &list, int &countInList){
     bool swapped = true;
     int start = 0;
     int end = countInList - 1;
@@ -461,12 +470,12 @@ int main() {
         cin >> choise;
         switch (choise){
             case 1:
-                system("cls");
                 cout << "1) Зарандомить\n" <<
                      "2) Ввести ручками\n-->> ";
                 cin >> choise;
                 if (choise == 1){
                     clearList(list);
+                    countInList = 0;
                     start = steady_clock::now();
                     randList(list);
                     end = steady_clock::now();
@@ -476,6 +485,7 @@ int main() {
                 }
                 else if (choise == 2){
                     clearList(list);
+                    countInList = 0;
                     cout << "Список: ";
                     start = steady_clock::now();
                     fillList(list);
@@ -555,8 +565,13 @@ int main() {
                         cout << "Время получения: " << result.count() << "\n\n";
                         break;
                     case 7:
+                        countInList = elementsInList(list);
+                        start = steady_clock::now();
                         shakerList(list, countInList);
+                        end = steady_clock::now();
+                        result = duration_cast<nanoseconds>(end - start);
                         printList(list);
+                        cout << "Время сортировки: " << result.count() << "\n\n";
                         break;
                     default:
                         cout << "Неправильно введен номер!!!\n\n";
@@ -663,8 +678,12 @@ int main() {
                         cout << "Время получения: " << result.count() << "\n\n";
                         break;
                     case 7:
+                        start = steady_clock::now();
                         shakerArray(arr, sizeArr);
+                        end = steady_clock::now();
+                        result = duration_cast<nanoseconds>(end - start);
                         printArray(sizeArr, arr);
+                        cout << "Время сортировки: " << result.count() << "\n\n";
                         break;
                     default:
                         cout << "Неправильно введён номер!\n\n";
