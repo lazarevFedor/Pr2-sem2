@@ -8,6 +8,42 @@ using namespace std;
 using namespace chrono;
 
 
+//Обычные функции
+void menu(){
+    cout << "1) Заполнить список\n" <<
+         "2) Действия со списоком\n" <<
+         "3) Вывести список\n" <<
+         "4) Заполнить массив\n" <<
+         "5) Действия с массивом\n" <<
+         "6) Вывести массив\n" <<
+         "7) Очистить экран\n" <<
+         "8) Выход\n-->> ";
+}
+
+
+void editMenu(){
+    cout << "\n1) Вставить элемент\n" <<
+         "2) Удалить элемент по индексу\n" <<
+         "3) Удалить элемент по значению\n" <<
+         "4) Обмен элементов\n" <<
+         "5) Получить элемент по индексу\n" <<
+         "6) Получить элемент по значению\n" <<
+         "7) Сортировка\n-->> ";
+}
+
+
+int randint(){
+    return rand() % 100;
+}
+
+
+void clearStream() {
+    cin.clear();
+    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    cin.sync();
+}
+
+//Структура элемента списка, структура списка
 struct Node {
     int data;
     Node* prev, *next;
@@ -17,6 +53,7 @@ struct Node {
         next = nullptr;
     }
 };
+
 
 struct LinkedList{
     Node* head, * tail;
@@ -184,129 +221,87 @@ struct LinkedList{
         ptr1->prev = ptr2->prev;
         ptr2->prev = temp;
     }
+
+    void printList(LinkedList &list){
+        cout << "\nСписок: ";
+        for (Node *ptr = list.head; ptr != nullptr; ptr = ptr->next)
+            cout << ptr->data << " ";
+        cout << "\n";
+    }
+
+    int findInList(LinkedList &list, int number){
+        int id = 0;
+        for (Node *ptr = list.head; ptr != nullptr; ptr = ptr->next){
+            if (ptr->data == number){
+                return id;
+            }
+            id++;
+        }
+        return -1;
+    }
+
+    int elementsInList(LinkedList &list){
+        int num = 0;
+        for (Node *ptr = list.head; ptr != nullptr; ptr = ptr->next){
+            num++;
+        }
+        return num;
+    }
+
+    void shakerList(LinkedList &list, int &countInList){
+        bool swapped = true;
+        int start = 0;
+        int end = countInList - 1;
+        while (swapped) {
+            swapped = false;
+            // Проход слева направо
+            for (int i = start; i < end; ++i) {
+                if (list.getAt(i)->data > list.getAt(i+1)->data){
+                    list.swapElements(i, i+1);
+                    swapped = true;
+                }
+            }
+            if (!swapped) {
+                break;
+            }
+            swapped = false;
+            --end;
+            // Проход справа налево
+            for (int i = end - 1; i >= start; --i) {
+                if (list.getAt(i)->data > list.getAt(i+1)->data) {
+                    list.swapElements(i, i+1);
+                    swapped = true;
+                }
+            }
+            ++start;
+        }
+    }
+
+    void randList(LinkedList &list){
+        int lenght = 0;
+        cout << "Введите количество элементов -->> ";
+        cin >> lenght;
+        clearStream();
+        for (int i = 0; i < lenght; i++){
+            list.pushBack(randint());
+        }
+    }
+
+    void fillList(LinkedList &list){
+        int number;
+        while (cin >> number) {
+            list.pushBack(number);
+            if (cin.peek() == '\n') {
+                break;
+            }
+        }
+        clearStream();
+    }
+
+    void clearList(LinkedList &list){
+        while(list.head != nullptr) list.popBack();
+    }
 };
-
-//Обычные функции
-void menu(){
-    cout << "1) Заполнить список\n" <<
-         "2) Действия со списоком\n" <<
-         "3) Вывести список\n" <<
-         "4) Заполнить массив\n" <<
-         "5) Действия с массивом\n" <<
-         "6) Вывести массив\n" <<
-         "7) Очистить экран\n" <<
-         "8) Выход\n-->> ";
-}
-
-
-void editMenu(){
-    cout << "\n1) Вставить элемент\n" <<
-         "2) Удалить элемент по индексу\n" <<
-         "3) Удалить элемент по значению\n" <<
-         "4) Обмен элементов\n" <<
-         "5) Получить элемент по индексу\n" <<
-         "6) Получить элемент по значению\n" <<
-         "7) Сортировка\n-->> ";
-}
-
-
-int randint(){
-    return rand() % 100;
-}
-
-
-void clearStream() {
-    cin.clear();
-    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    cin.sync();
-}
-
-//Функции list
-void printList(LinkedList &list){
-    cout << "\nСписок: ";
-    for (Node *ptr = list.head; ptr != nullptr; ptr = ptr->next)
-        cout << ptr->data << " ";
-    cout << "\n";
-}
-
-
-void randList(LinkedList &list){
-    int lenght = 0;
-    cout << "Введите количество элементов -->> ";
-    cin >> lenght;
-    clearStream();
-    for (int i = 0; i < lenght; i++){
-        list.pushBack(randint());
-    }
-}
-
-
-void fillList(LinkedList &list){
-    int number;
-    while (cin >> number) {
-        list.pushBack(number);
-        if (cin.peek() == '\n') {
-            break;
-        }
-    }
-    clearStream();
-}
-
-
-void clearList(LinkedList &list){
-    while(list.head != nullptr) list.popBack();
-}
-
-
-int findInList(LinkedList &list, int number){
-    int id = 0;
-    for (Node *ptr = list.head; ptr != nullptr; ptr = ptr->next){
-        if (ptr->data == number){
-            return id;
-        }
-        id++;
-    }
-    return -1;
-}
-
-
-int elementsInList(LinkedList &list){
-    int num = 0;
-    for (Node *ptr = list.head; ptr != nullptr; ptr = ptr->next){
-        num++;
-    }
-    return num;
-}
-
-
-void shakerList(LinkedList &list, int &countInList){
-    bool swapped = true;
-    int start = 0;
-    int end = countInList - 1;
-    while (swapped) {
-        swapped = false;
-        // Проход слева направо
-        for (int i = start; i < end; ++i) {
-            if (list.getAt(i)->data > list.getAt(i+1)->data){
-                list.swapElements(i, i+1);
-                swapped = true;
-            }
-        }
-        if (!swapped) {
-            break;
-        }
-        swapped = false;
-        --end;
-        // Проход справа налево
-        for (int i = end - 1; i >= start; --i) {
-            if (list.getAt(i)->data > list.getAt(i+1)->data) {
-                list.swapElements(i, i+1);
-                swapped = true;
-            }
-        }
-        ++start;
-    }
-}
 
 //Функции динамического массива
 void randArray(int &sizeArr, int* &arr){
@@ -474,21 +469,21 @@ int main() {
                      "2) Ввести ручками\n-->> ";
                 cin >> choise;
                 if (choise == 1){
-                    clearList(list);
+                    list.clearList(list);
                     countInList = 0;
                     start = steady_clock::now();
-                    randList(list);
+                    list.randList(list);
                     end = steady_clock::now();
                     result = duration_cast<nanoseconds>(end - start);
-                    printList(list);
+                    list.printList(list);
                     cout << "Время создания: " << result.count() << "\n";
                 }
                 else if (choise == 2){
-                    clearList(list);
+                    list.clearList(list);
                     countInList = 0;
                     cout << "Список: ";
                     start = steady_clock::now();
-                    fillList(list);
+                    list.fillList(list);
                     end = steady_clock::now();
                     result = duration_cast<nanoseconds>(end - start);
                     cout << "Время создания: " << result.count() << "\n\n";
@@ -508,7 +503,7 @@ int main() {
                         list.insert(id, number);
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
-                        printList(list);
+                        list.printList(list);
                         cout << "Время вставки: " << result.count() << "\n\n";
                         break;
                     case 2:
@@ -518,7 +513,7 @@ int main() {
                         list.eraseByIndex(id);
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
-                        printList(list);
+                        list.printList(list);
                         cout << "Время удаления: " << result.count() << "\n\n";
                         break;
                     case 3:
@@ -528,7 +523,7 @@ int main() {
                         list.eraseByValue(number);
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
-                        printList(list);
+                        list.printList(list);
                         cout << "Время удаления: " << result.count() << "\n\n";
                         break;
                     case 4:
@@ -537,7 +532,7 @@ int main() {
                         cout << "Индекс2: ";
                         cin >> number;
                         list.swapElements(id, number);
-                        printList(list);
+                        list.printList(list);
                         break;
                     case 5:
                         cout << "Индекс: ";
@@ -553,7 +548,7 @@ int main() {
                         cout << "Значение: ";
                         cin >> number;
                         start = steady_clock::now();
-                        id = findInList(list, number);
+                        id = list.findInList(list, number);
                         if (id == -1){
                             cout << "Неправильно введено значение!\n\n";
                         }
@@ -565,12 +560,12 @@ int main() {
                         cout << "Время получения: " << result.count() << "\n\n";
                         break;
                     case 7:
-                        countInList = elementsInList(list);
+                        countInList = list.elementsInList(list);
                         start = steady_clock::now();
-                        shakerList(list, countInList);
+                        list.shakerList(list, countInList);
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
-                        printList(list);
+                        list.printList(list);
                         cout << "Время сортировки: " << result.count() << "\n\n";
                         break;
                     default:
@@ -579,7 +574,7 @@ int main() {
                 }
                 break;
             case 3:
-                printList(list);
+                list.printList(list);
                 break;
             case 4:
                 clearArray(sizeArr, arr);
@@ -697,7 +692,7 @@ int main() {
                 system("cls");
                 break;
             case 8:
-                clearList(list);
+                list.clearList(list);
                 delete [] arr;
                 arr = nullptr;
                 exit(0);
