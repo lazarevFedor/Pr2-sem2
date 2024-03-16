@@ -50,8 +50,7 @@ struct Node {
     Node* prev, *next;
     Node(int inputData) {
         data = inputData;
-        prev = nullptr;
-        next = nullptr;
+        prev = next = nullptr;
     }
 };
 
@@ -69,7 +68,7 @@ struct LinkedList{
         if (head != nullptr){
             head->prev = ptr;
         }
-        if (tail == nullptr){ //Если объект единственный tail == nullptr
+        if (tail == nullptr){ //Если объект самый первый tail == nullptr
             tail = ptr;
         }
         head = ptr;
@@ -81,14 +80,14 @@ struct LinkedList{
         if (tail != nullptr){
             tail->next = ptr;
         }
-        if (head == nullptr){ //Если объект единственный head == nullptr
+        if (head == nullptr){ //Если объект самый первый head == nullptr
             head = ptr;
         }
         tail = ptr;
     }
 
     void popFront(){
-        if(head == nullptr) return; //Если нет элементов, то удалять нечего => return
+        if(head == nullptr) return; //Если нет элементов, то удалять нечего
         Node* ptr = head->next;
         if(ptr != nullptr){
             ptr->prev = nullptr;
@@ -100,7 +99,7 @@ struct LinkedList{
     }
 
     void popBack(){
-        if(tail == nullptr) return; //Если нет элементов, то удалять нечего => return
+        if(tail == nullptr) return; //Если нет элементов, то удалять нечего
         Node* ptr = tail->prev;
         if(ptr != nullptr){
             ptr->next = nullptr;
@@ -144,7 +143,7 @@ struct LinkedList{
         Node* ptr = getAt(index);
         if (ptr == nullptr){
             cout << "\nНет элемента для удаления!";
-            return; //нет такого элемента для удаления
+            return;
         }
         if (ptr->prev == nullptr){ //если удаляемый элемент первый
             popFront();
@@ -168,7 +167,7 @@ struct LinkedList{
         }
         if (ptr == nullptr){
             cout << "\nНет элемента для удаления!";
-            return; //нет такого элемента для удаления
+            return;
         }
         if (ptr->prev == nullptr){ //если удаляемый элемент первый
             popFront();
@@ -193,30 +192,29 @@ struct LinkedList{
         Node* right1 = getAt(index1+1);
         Node* right2 = getAt(index2+1);
 
-        if (ptr1 == nullptr) return;
-        else if (ptr2 == nullptr) return;
+        if (ptr1 == nullptr) return; // Указатель не существует
+        else if (ptr2 == nullptr) return; // Указатель не существует
         else if (index1 == index2) return;
-
         if (left1 != nullptr) {
             left1->next = ptr2;
         } else {
             head = ptr2;
         }
-
         if (left2 != nullptr) {
             left2->next = ptr1;
         } else {
             head = ptr1;
         }
-
         if (right1 != nullptr) {
             right1->prev = ptr2;
+        } else{
+            tail = ptr2;
         }
-
         if (right2 != nullptr) {
             right2->prev = ptr1;
+        } else{
+            tail = ptr1;
         }
-
         // Обновление указателей next и prev у самих элементов
         Node* temp = ptr1->next;
         ptr1->next = ptr2->next;
@@ -226,16 +224,16 @@ struct LinkedList{
         ptr2->prev = temp;
     }
 
-    void printList(LinkedList &list){
+    void printList(){
         cout << "\nСписок: ";
-        for (Node *ptr = list.head; ptr != nullptr; ptr = ptr->next)
+        for (Node *ptr = head; ptr != nullptr; ptr = ptr->next)
             cout << ptr->data << " ";
         cout << "\n";
     }
 
-    int findInList(LinkedList &list, int number){
+    int findInList(int number){
         int id = 0;
-        for (Node *ptr = list.head; ptr != nullptr; ptr = ptr->next){
+        for (Node *ptr = head; ptr != nullptr; ptr = ptr->next){
             if (ptr->data == number){
                 return id;
             }
@@ -244,24 +242,23 @@ struct LinkedList{
         return -1;
     }
 
-    int elementsInList(LinkedList &list){
+    int elementsInList(){
         int num = 0;
-        for (Node *ptr = list.head; ptr != nullptr; ptr = ptr->next){
+        for (Node *ptr = head; ptr != nullptr; ptr = ptr->next){
             num++;
         }
         return num;
     }
 
-    void shakerList(LinkedList &list, int &countInList){
+    void shakerList(int &countInList){
         bool swapped = true;
         int start = 0;
         int end = countInList - 1;
         while (swapped) {
             swapped = false;
-            // Проход слева направо
             for (int i = start; i < end; ++i) {
-                if (list.getAt(i)->data > list.getAt(i+1)->data){
-                    list.swapElements(i, i+1);
+                if (getAt(i)->data > getAt(i+1)->data){
+                    swapElements(i, i+1);
                     swapped = true;
                 }
             }
@@ -270,10 +267,9 @@ struct LinkedList{
             }
             swapped = false;
             --end;
-            // Проход справа налево
             for (int i = end - 1; i >= start; --i) {
-                if (list.getAt(i)->data > list.getAt(i+1)->data) {
-                    list.swapElements(i, i+1);
+                if (getAt(i)->data > getAt(i+1)->data) {
+                    swapElements(i, i+1);
                     swapped = true;
                 }
             }
@@ -281,16 +277,16 @@ struct LinkedList{
         }
     }
 
-    void randList(LinkedList &list, int &lenght){
+    void randList(int &lenght){
         for (int i = 0; i < lenght; i++){
-            list.pushBack(randint());
+            pushBack(randint());
         }
     }
 
-    void fillList(LinkedList &list){
+    void fillList(){
         int number;
         while (cin >> number) {
-            list.pushBack(number);
+            pushBack(number);
             if (cin.peek() == '\n') {
                 break;
             }
@@ -298,8 +294,8 @@ struct LinkedList{
         clearStream();
     }
 
-    void clearList(LinkedList &list){
-        while(list.head != nullptr) list.popBack();
+    void clearList(){
+        while(head != nullptr) popBack();
     }
 };
 
@@ -492,23 +488,23 @@ int main() {
                      "2) Ввести ручками\n-->> ";
                 cin >> choise;
                 if (choise == 1){
-                    list.clearList(list);
+                    list.clearList();
                     int lenght = 0;
                     cout << "Введите количество элементов -->> ";
                     cin >> lenght;
                     clearStream();
                     start = steady_clock::now();
-                    list.randList(list, lenght);
+                    list.randList(lenght);
                     end = steady_clock::now();
                     result = duration_cast<nanoseconds>(end - start);
                     listTime.rand = result.count();
-                    list.printList(list);
+                    list.printList();
                 }
                 else if (choise == 2){
-                    list.clearList(list);
+                    list.clearList();
                     cout << "Список: ";
                     start = steady_clock::now();
-                    list.fillList(list);
+                    list.fillList();
                     end = steady_clock::now();
                     result = duration_cast<nanoseconds>(end - start);
                     listTime.fill = result.count();
@@ -529,7 +525,7 @@ int main() {
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
                         listTime.insert = result.count();
-                        list.printList(list);
+                        list.printList();
                         break;
                     case 2:
                         cout << "Индекс: ";
@@ -539,7 +535,7 @@ int main() {
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
                         listTime.eraseById = result.count();
-                        list.printList(list);
+                        list.printList();
                         break;
                     case 3:
                         cout << "Значение: ";
@@ -549,7 +545,7 @@ int main() {
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
                         listTime.eraseByVal = result.count();
-                        list.printList(list);
+                        list.printList();
                         break;
                     case 4:
                         cout << "Индекс1: ";
@@ -557,7 +553,7 @@ int main() {
                         cout << "Индекс2: ";
                         cin >> number;
                         list.swapElements(id, number);
-                        list.printList(list);
+                        list.printList();
                         break;
                     case 5:
                         cout << "Индекс: ";
@@ -576,7 +572,7 @@ int main() {
                         cout << "Значение: ";
                         cin >> number;
                         start = steady_clock::now();
-                        id = list.findInList(list, number);
+                        id = list.findInList(number);
                         end = steady_clock::now();
                         if (id == -1){
                             cout << "Такого значения нет!\n\n";
@@ -588,12 +584,12 @@ int main() {
                         }
                         break;
                     case 7:
-                        countInList = list.elementsInList(list);
+                        countInList = list.elementsInList();
                         start = steady_clock::now();
-                        list.shakerList(list, countInList);
+                        list.shakerList(countInList);
                         end = steady_clock::now();
                         result = duration_cast<nanoseconds>(end - start);
-                        list.printList(list);
+                        list.printList();
                         listTime.sort = result.count();
                         break;
                     default:
@@ -602,7 +598,7 @@ int main() {
                 }
                 break;
             case 3:
-                list.printList(list);
+                list.printList();
                 break;
             case 4:
                 clearArray(sizeArr, arr);
@@ -726,7 +722,7 @@ int main() {
                 arrayTime.showInfo();
                 break;
             case 9:
-                list.clearList(list);
+                list.clearList();
                 delete [] arr;
                 arr = nullptr;
                 exit(0);
