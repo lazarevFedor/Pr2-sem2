@@ -58,9 +58,7 @@ struct Node {
 struct LinkedList{
     Node* head, * tail;
 
-    void LinkedListCreate() {
-        head = tail = nullptr;
-    }
+    LinkedList(): head(nullptr), tail(nullptr){}
 
     void pushFront(int data){
         Node* ptr = new Node(data);
@@ -478,7 +476,6 @@ int main() {
     int choise, sizeArr = 0, id, number, countInList;
     int* arr = new int [sizeArr];
     LinkedList list;
-    list.LinkedListCreate();
     while(true){
         menu();
         cin >> choise;
